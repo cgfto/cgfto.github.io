@@ -11,25 +11,30 @@
 		<meta property="og:type" content="website">
 		<meta property="og:title" content="Site Title">
 		<meta property="og:description" content="Add a short description of your site here">
-		<meta property="og:image" content="/assets/og-image.png">
+		<meta property="og:image" content="assets/og-image.png">
 
 		<title>Christian Graduate Fellowship</title>
 
 		<!-- Favicon (place your files in /assets or update paths) -->
-		<link rel="icon" href="/assets/favicon.ico">
+		<link rel="icon" href="assets/favicon.ico">
 
 		<!-- Load Switzer from Fontshare -->
 		<link href="https://api.fontshare.com/v2/css?f[]=switzer&display=swap" rel="stylesheet">
 
 		<!-- External stylesheet -->
-		<link rel="stylesheet" href="/styles.css">
+		<link rel="stylesheet" href="styles.css">
 	</head>
 	<body>
+		<div id="page-top" aria-hidden="true"></div>
 		<header>
 			<div class="container" role="banner">
 				<nav aria-label="Primary navigation">
-					<a href="/" class="site-logo"><img src="/assets/logo.svg" alt="Site logo"></a>
-					<div style="flex:1"></div>
+					<a href="#page-top" class="site-logo" aria-label="Christian Graduate Fellowship home">
+						<img src="assets/logo-col.svg" alt="Christian Graduate Fellowship logo" class="logo logo--color">
+						<img src="assets/logo-white.svg" alt="" class="logo logo--white" aria-hidden="true">
+					</a>
+					<a href="#page-top" class="site-brand-link" aria-label="Back to top">Christian Graduate Fellowship</a>
+					<div class="nav-spacer" aria-hidden="true"></div>
 					<a href="https://drive.google.com/file/d/12z76LFm_a1_fm0Aa7PVzEpQjUS8m8hgc/view?usp=share_link" class="nav-link" target="_blank" rel="noopener noreferrer">Code of Conduct</a>
 					<a href="https://linktr.ee/cgfto" class="nav-link" target="_blank" rel="noopener noreferrer">Linktree</a>
 					<a href="https://www.instagram.com/cgf.to" class="nav-link" target="_blank" rel="noopener noreferrer">Instagram</a>
@@ -42,22 +47,33 @@
 			
 
 			<main id="main" class="container" role="main">
-				<section class="hero" role="region" aria-label="Hero">
-					<!-- Black text layer: fixed at top during scroll -->
-					<div class="hero__text hero__text--black">
-						<h1 class="h1">A community for graduate students and young professionals to embody the light of Christ in today's cultural context.</h1>
-					</div>
-					
-					<!-- Carousel container: 5 hero images that scroll into view -->
-					<div class="hero__carousel">
-					<div class="hero__image" style="background-image: url('/assets/hero.png')"></div>
-					<div class="hero__image" style="background-image: url('/assets/hero.png')"></div>
-					<div class="hero__image" style="background-image: url('/assets/hero.png')"></div>
-					<div class="hero__image" style="background-image: url('/assets/hero.png')"></div>
-					<div class="hero__image" style="background-image: url('/assets/hero.png')"></div>
-					<!-- White text layer: revealed as image scrolls past -->
-					<div class="hero__text hero__text--white">
-						<h1 class="h1">A community for graduate students and young professionals to embody the light of Christ in today's cultural context.</h1>
+				<section class="hero" role="region" aria-label="Hero" data-hero>
+					<div class="hero__sticky">
+						<div class="hero__scene">
+							<div class="hero__copy hero__copy--black">
+								<h1 class="hero__headline">A community for graduate students and young professionals to embody the light of Christ in today's cultural context.</h1>
+								<div class="hero__actions">
+									<a class="cta-button hero__button hero__button--down" href="#fall-schedule">Fall Schedule ↓</a>
+									<a class="cta-button hero__button hero__button--secondary" href="https://docs.google.com/forms/d/12eYJ0UB33wIZAB1GdYwTEZcyMXAQ-oiiRa-cI--vRkk/edit" target="_blank" rel="noopener noreferrer">I'm New Here</a>
+								</div>
+							</div>
+							<div class="hero__media" aria-hidden="true">
+								<div class="hero__frame">
+									<div class="hero__slide" style="background-image: url('assets/hero-1.png')"></div>
+									<div class="hero__slide" style="background-image: url('assets/hero-2.png')"></div>
+									<div class="hero__slide" style="background-image: url('assets/hero-3.png')"></div>
+									<div class="hero__slide" style="background-image: url('assets/hero-4.png')"></div>
+									<div class="hero__slide" style="background-image: url('assets/hero-5.png')"></div>
+								</div>
+							</div>
+							<div class="hero__copy hero__copy--white">
+								<h1 class="hero__headline">A community for graduate students and young professionals to embody the light of Christ in today's cultural context.</h1>
+								<div class="hero__actions hero__actions--ghost" aria-hidden="true">
+									<span class="cta-button hero__button hero__button--down hero__button--ghost">Fall Schedule ↓</span>
+									<span class="cta-button hero__button hero__button--secondary hero__button--ghost">I'm New Here</span>
+								</div>
+							</div>
+						</div>
 					</div>
 				</section>
 <section class="section" aria-label="About CGF">
@@ -69,7 +85,7 @@
 					</div>
 				</div>
 			</section>
-			<section class="section" aria-label="Fall Schedule">
+			<section class="section section--schedule" aria-label="Fall Schedule" id="fall-schedule">
 				<div class="section__content">
 					<h2 class="section__title">Fall Schedule</h2>
 					<!-- DEV NOTE: This table is currently static. Update the rows below in the HTML or replace this tbody with a JS-generated schedule from an external data source or spreadsheet sync. -->
@@ -82,7 +98,7 @@
 								<th>Location</th>
 								<th>Event</th>
 								<th>Topic/Details</th>
-								<th>Calendar</th>
+								<th aria-hidden="true"></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -233,8 +249,8 @@
 					<div class="locations-grid">
 						<div class="location-card">
 							<div class="location-image-carousel">
-								<img src="/assets/location1-1.png" alt="Grace Toronto Church" class="carousel-image active">
-								<img src="/assets/location1-2.png" alt="Grace Toronto Church" class="carousel-image">
+								<img src="assets/location1-1.png" alt="Grace Toronto Church" class="carousel-image active">
+								<img src="assets/location1-2.png" alt="Grace Toronto Church" class="carousel-image">
 							</div>
 							<h3 class="location-title">Grace Toronto Church</h3>
 							<p class="location-address">383 Jarvis St. Toronto ON</p>
@@ -243,8 +259,8 @@
 						</div>
 						<div class="location-card">
 							<div class="location-image-carousel">
-								<img src="/assets/location2-1.png" alt="University of Toronto / Wycliffe" class="carousel-image active">
-								<img src="/assets/location2-2.png" alt="University of Toronto / Wycliffe" class="carousel-image">
+								<img src="assets/location2-1.png" alt="University of Toronto / Wycliffe" class="carousel-image active">
+								<img src="assets/location2-2.png" alt="University of Toronto / Wycliffe" class="carousel-image">
 							</div>
 							<h3 class="location-title">University of Toronto / Wycliffe</h3>
 							<p class="location-address">5 Hoskin Ave. Toronto ON</p>
@@ -258,7 +274,7 @@
 			</footer>
 		</div>
 
-		<script src="/script.js" defer></script>
+		<script src="script.js" defer></script>
 	</body>
 </html>
 

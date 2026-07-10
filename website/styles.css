@@ -1,29 +1,118 @@
 header {
-    position: absolute !important;
-    top: 48px;
-    left: 48px;
-    right: 48px;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 24px 24px 0;
+    box-sizing: border-box;
     z-index: 30;
     border-bottom: none;
     background-color: transparent;
+    will-change: transform;
+    transition: background-color 220ms ease, box-shadow 220ms ease, transform 220ms ease, padding-top 220ms ease, padding-bottom 220ms ease;
 }
 
-.site-logo img {
+header.header--solid {
+    background-color: #EBEBEB;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+header.header--hidden {
+    transform: translateY(-120%);
+    box-shadow: none;
+}
+
+.site-logo {
+    position: relative;
+    display: inline-block;
+    line-height: 0;
+    max-width: 260px;
+    overflow: hidden;
+    transition: opacity 180ms ease, max-width 180ms ease, transform 180ms ease;
+}
+
+.site-logo .logo {
     display: block;
     max-height: 64px;
     width: auto;
+}
+
+.site-logo .logo--white {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 220ms ease;
+}
+
+.site-logo .logo--color {
+    opacity: 1;
+    transition: opacity 220ms ease;
+}
+
+header.header--on-image .site-logo .logo--white {
+    opacity: 1;
+}
+
+header.header--on-image .site-logo .logo--color {
+    opacity: 0;
+}
+
+header.header--solid .site-logo {
+    position: absolute;
+    left: 24px;
+    top: 20px;
+    opacity: 0;
+    max-width: 0;
+    height: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+}
+
+.site-brand-link {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-decoration: none;
+    color: #111;
+    font-family: 'Switzer Variable', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition: opacity 180ms ease, max-width 180ms ease, transform 180ms ease;
+}
+
+header.header--solid .site-brand-link {
+    max-width: 420px;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+header.header--solid nav {
+    gap: 20px;
+    transform: translateY(-1px);
+}
+
+.nav-spacer {
+    flex: 1;
 }
 a {
     color: var(--accent);
 }
 
 /* Font registration
-	 Place your font files in /assets/fonts/ and update the filenames below if needed.
-	 Examples expect: /assets/fonts/NeueHaasMontreal.woff2 and /assets/fonts/SwitzerVariable.woff2
+     Place your font files in assets/fonts/ and update the filenames below if needed.
+     Examples expect: assets/fonts/NeueHaasMontreal.woff2 and assets/fonts/SwitzerVariable.woff2
 */
 @font-face {
     font-family: 'Neue Haas Montreal';
-    src: local('Neue Haas Montreal'), url('/assets/fonts/NeueHaasMontreal.woff2') format('woff2');
+    src: local('Neue Haas Montreal'), url('assets/fonts/NeueHaasMontreal.woff2') format('woff2');
     font-weight: 300 900;
     font-style: normal;
     font-display: swap;
@@ -31,14 +120,14 @@ a {
 
 @font-face {
     font-family: 'Switzer Variable';
-    src: local('Switzer Variable'), url('/assets/fonts/SwitzerVariable.woff2') format('woff2');
+    src: local('Switzer Variable'), url('assets/fonts/SwitzerVariable.woff2') format('woff2');
     font-weight: 100 900;
     font-style: normal;
     font-display: swap;
 }
 
 :root {
-    --bg: #fff;
+    --bg: #EBEBEB;
     --fg: #111;
     --muted: #666;
     --accent: #0066cc;
@@ -51,10 +140,22 @@ body {
     height: 100%;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
 body {
     margin: 0;
     padding: 24px 24px 0;
     box-sizing: border-box;
+    overflow-x: hidden;
+    background: #EBEBEB;
 }
 
 /* body rules kept empty intentionally above; hero styles appear later in file. */
@@ -63,27 +164,25 @@ main {
     flex: 1;
 }
 
-footer {
-
-}
-
 nav {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    position: relative;
     display: flex;
     gap: 24px;
     align-items: flex-start;
 }
 
 .nav-link {
-    color: #fff;
+    color: #111;
     text-decoration: none;
     font-family: 'Switzer Variable', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
     font-size: 16px;
     font-weight: 400;
     line-height: 1;
+    transition: color 220ms ease;
+}
+
+header.header--on-image .nav-link {
+    color: #fff;
 }
 
 .nav-link:hover,
@@ -108,102 +207,168 @@ h5 {
 
 /* Hero */
 .hero {
-    --hero-bleed: 24px;
-    --hero-scroll: 0;
-    height: 100vh;
-    max-height: 892px;
-    width: 100%;
-    box-sizing: border-box;
-    background: #fff;
     position: relative;
-    z-index: 1;
-    overflow: hidden;
+    width: calc(100% + 48px);
+    margin-left: -24px;
+    margin-right: -24px;
+    background: #EBEBEB;
+    overflow: clip;
 }
 
-/* Image carousel container */
-.hero__carousel {
-    position: absolute;
+.hero__sticky {
+    position: sticky;
     top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* Transform applied via JS based on scroll */
-}
-
-/* Individual hero image slides */
-.hero__image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center center;
-    background-color: #222;
-    opacity: 0;
-    z-index: 2;
-    /* Transition for carousel fade effect */
-    transition: opacity 0.6s ease;
-}
-
-.hero__image.active {
-    opacity: 1;
-}
-
-/* Black text layer: fixed at top, visible initially */
-.hero__text--black {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
     height: 100vh;
-    max-height: 892px;
-    color: #111;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 24px;
-    box-sizing: border-box;
-    z-index: 10;
-    pointer-events: none;
-    /* Opacity animated via JS based on scroll depth */
+    overflow: hidden;
+    background: #EBEBEB;
 }
 
-/* White text layer: below carousel, revealed on scroll */
-.hero__text--white {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+.hero__scene {
+    position: relative;
     width: 100%;
     height: 100%;
-    color: #fff;
+}
+
+.hero__copy {
+    position: absolute;
+    inset: 0;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     justify-content: center;
     padding: 0 24px;
     box-sizing: border-box;
     z-index: 3;
-    /* Opacity controlled via JS during scroll */
-    opacity: 0;
     pointer-events: none;
 }
 
-/* Text max width for both layers */
-.hero__text h1 {
-    max-width: 900px;
-    text-align: center;
+.hero__copy--black {
+    color: #111;
+    opacity: 1;
+    clip-path: inset(0 0 calc(100% - var(--hero-text-cutoff, 85vh)) 0);
+}
+
+.hero__copy--white {
+    color: #fff;
+    opacity: 1;
+    z-index: 5;
+    clip-path: inset(var(--hero-text-cutoff, 85vh) 0 0 0);
+}
+
+.hero__headline {
+    margin: 0;
+    text-align: left;
+    width: min(900px, calc(100vw - 48px));
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(34px, 4vw, 58px);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    transform: translateY(-3vh);
+}
+
+.hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+    pointer-events: auto;
+}
+
+.hero__button {
+    background: rgba(0, 0, 0, 0.08);
+    color: #111;
+}
+
+.hero__actions .hero__button--down::after {
+    content: none;
+}
+
+.hero__button--secondary {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.hero__actions--ghost {
+    pointer-events: none;
+}
+
+.hero__button--ghost {
+    visibility: hidden;
+}
+
+.hero__media {
+    position: absolute;
+    left: var(--hero-side-gap, 24px);
+    right: var(--hero-side-gap, 24px);
+    bottom: 0;
+    height: var(--hero-media-height, 15vh);
+    overflow: hidden;
+    border-radius: 8px;
+    background: #111;
+    z-index: 2;
+    will-change: left, right, height;
+}
+
+.hero__frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.hero__slide {
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0;
+    transition: opacity 180ms linear;
+    will-change: opacity;
+}
+
+.hero__slide:first-child {
+    opacity: 1;
 }
 
 .h1 {
     font-family: var(--font-display);
-    /* Lighter weight: prefers Neue Haas Montreal, falls back to Switzer */
     font-weight: 400;
     font-size: 36px;
     line-height: 1.0;
     margin: 0;
+}
+
+@media (max-width: 900px) {
+    .hero__headline {
+        font-size: clamp(28px, 7vw, 46px);
+        transform: translateY(-2vh);
+    }
+
+    .hero__media {
+        height: var(--hero-media-height, 15vh);
+    }
+}
+
+@media (max-width: 640px) {
+    .hero {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .hero__copy {
+        padding: 0 16px;
+    }
+
+    .hero__actions {
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .hero__media {
+        left: var(--hero-side-gap, 0px);
+        right: var(--hero-side-gap, 0px);
+    }
 }
 
 .skip-link {
@@ -231,7 +396,7 @@ h5 {
 }
 
 .section {
-    background: #fff;
+    background: transparent;
     padding: 24px 0 64px;
     border-top: 1px solid #000;
 }
@@ -239,6 +404,14 @@ h5 {
 .section__content {
     max-width: 900px;
     padding: 0;
+}
+
+.section--schedule .section__content {
+    max-width: none;
+}
+
+.section--schedule {
+    padding-bottom: 144px;
 }
 
 .section__title {
@@ -249,6 +422,10 @@ h5 {
     margin: 0 0 24px;
 }
 
+#fall-schedule {
+    scroll-margin-top: 64px;
+}
+
 .section-table {
     width: 100%;
     border-collapse: collapse;
@@ -257,11 +434,11 @@ h5 {
 
 .section-table th,
 .section-table td {
-    padding: 10px 12px;
+    padding: 6px 12px;
     text-align: left;
     font-family: 'Switzer Variable', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
-    font-size: 14px;
-    line-height: 1.4;
+    font-size: 13px;
+    line-height: 1.25;
     color: #111;
 }
 
@@ -272,15 +449,19 @@ h5 {
 
 .section-table th {
     font-weight: 600;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #DBDBDB;
 }
 
 .section-table td {
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #DBDBDB;
 }
 
 .section-table tr:nth-child(even) {
-    background: #fafafa;
+    background: transparent;
+}
+
+.section-table tbody tr {
+    background: transparent;
 }
 
 .section-table td .calendar-button {

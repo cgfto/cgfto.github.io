@@ -103,74 +103,121 @@ document.addEventListener('DOMContentLoaded', function(){
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   }
 
-  // Smoothly adjust hero bleed based on scroll position so the top and sides
-  // transition back into the page padding over the first 120px of scroll.
-  // Also handle parallax hero effect: image carousel, text layering, and margin collapse.
+  // Scroll-driven hero: collapses the side gutters, wipes the headline, and crossfades the frames.
   (function(){
-    var hero = document.querySelector('.hero');
-    var carousel = document.querySelector('.hero__carousel');
-    var images = document.querySelectorAll('.hero__image');
-    var blackText = document.querySelector('.hero__text--black');
-    var whiteText = document.querySelector('.hero__text--white');
-    
-    if (!hero || images.length === 0) return;
-    
-    // Activate first image on load
-    images[0].classList.add('active');
-    
-    var lastBleed = null;
-    var maxBleed = 24;
-    var bleedRange = 120;
-    var heroHeight = hero.offsetHeight;
-    var imageCount = images.length;
+    var hero = document.querySelector('[data-hero]');
+    var header = document.querySelector('header');
+    var heroMedia = hero ? hero.querySelector('.hero__media') : null;
+    if (!hero) return;
 
-    function updateHeroState(){
-      var scroll = window.scrollY;
-      var heroScroll = Math.max(0, Math.min(1, scroll / heroHeight));
-      
-      // Update hero bleed (margins collapse over first 120px)
-      var bleedScroll = Math.max(0, Math.min(1, scroll / bleedRange));
-      var bleed = Math.round((1 - bleedScroll) * maxBleed);
-      if (bleed !== lastBleed) {
-        document.body.style.setProperty('--hero-bleed', bleed + 'px');
-        lastBleed = bleed;
+    var slides = Array.prototype.slice.call(hero.querySelectorAll('.hero__slide'));
+    var blackCopy = hero.querySelector('.hero__copy--black');
+    var whiteCopy = hero.querySelector('.hero__copy--white');
+    if (!slides.length || !blackCopy || !whiteCopy) return;
+
+    var heroScrollLength = 0;
+    var scheduled = false;
+    var lastScrollY = window.scrollY;
+    var solidEnteredAt = null;
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function measure() {
+      hero.style.height = Math.round(window.innerHeight * (slides.length + 0.35)) + 'px';
+      heroScrollLength = Math.max(1, hero.offsetHeight - window.innerHeight);
+    }
+
+    function update() {
+      scheduled = false;
+
+      var progress = clamp(window.scrollY / heroScrollLength, 0, 1);
+      var gutterProgress = clamp(progress / 0.28, 0, 1);
+      var revealProgress = clamp(progress / 0.34, 0, 1);
+      var mediaHeight = Math.round(window.innerHeight * (0.15 + (0.85 * revealProgress)));
+      var textCutoff = Math.max(0, window.innerHeight - mediaHeight);
+      var sequenceStart = 0.36;
+      var sequenceEnd = 0.74;
+      var transitionShare = 0.18;
+      var transitionCount = slides.length - 1;
+
+      hero.style.setProperty('--hero-side-gap', Math.round(24 * (1 - gutterProgress)) + 'px');
+      hero.style.setProperty('--hero-media-height', mediaHeight + 'px');
+      hero.style.setProperty('--hero-text-cutoff', textCutoff + 'px');
+      blackCopy.style.opacity = '1';
+      whiteCopy.style.opacity = '1';
+
+      for (var j = 0; j < slides.length; j += 1) {
+        slides[j].style.opacity = '0';
       }
-      
-      // Update hero scroll CSS variable for potential use
-      document.body.style.setProperty('--hero-scroll', heroScroll);
-      
-      // Image carousel: switch images based on scroll depth through hero
-      if (imageCount > 1) {
-        var imageIndex = Math.floor(heroScroll * (imageCount - 1));
-        imageIndex = Math.min(imageIndex, imageCount - 1);
-        
-        images.forEach(function(img, idx) {
-          if (idx === imageIndex) {
-            img.classList.add('active');
-          } else {
-            img.classList.remove('active');
+
+      if (progress <= sequenceStart) {
+        slides[0].style.opacity = '1';
+      } else if (progress >= sequenceEnd) {
+        slides[slides.length - 1].style.opacity = '1';
+      } else {
+        var spanProgress = (progress - sequenceStart) / (sequenceEnd - sequenceStart);
+        var transitionProgress = spanProgress * transitionCount;
+        var transitionIndex = Math.floor(transitionProgress);
+        var segmentProgress = transitionProgress - transitionIndex;
+        var holdThreshold = 1 - transitionShare;
+
+        transitionIndex = Math.min(transitionIndex, slides.length - 2);
+
+        if (segmentProgress < holdThreshold) {
+          slides[transitionIndex].style.opacity = '1';
+        } else {
+          var fadeProgress = (segmentProgress - holdThreshold) / transitionShare;
+          slides[transitionIndex].style.opacity = String(1 - fadeProgress);
+          slides[transitionIndex + 1].style.opacity = String(fadeProgress);
+        }
+      }
+
+      if (header && heroMedia) {
+        var headerRect = header.getBoundingClientRect();
+        var mediaRect = heroMedia.getBoundingClientRect();
+        var heroRect = hero.getBoundingClientRect();
+        var overlap = mediaRect.top < headerRect.bottom && mediaRect.bottom > headerRect.top;
+        var currentScrollY = window.scrollY;
+        var scrollDelta = currentScrollY - lastScrollY;
+        var solidThreshold = 12;
+        var pastHero = heroRect.bottom <= solidThreshold;
+
+        header.classList.toggle('header--on-image', overlap);
+        header.classList.toggle('header--solid', pastHero);
+
+        if (pastHero) {
+          if (solidEnteredAt === null) {
+            solidEnteredAt = currentScrollY;
           }
-        });
-      }
-      
-      // Parallax text effect: black text fades out, white text fades in
-      // Black text opacity: 1 at top, fades to 0 as you scroll through hero
-      var textScroll = Math.max(0, Math.min(1, scroll / (heroHeight * 0.8)));
-      if (blackText) {
-        blackText.style.opacity = Math.max(0, 1 - textScroll);
-      }
-      if (whiteText) {
-        whiteText.style.opacity = Math.min(1, textScroll);
+
+          if (scrollDelta > 2 && currentScrollY - solidEnteredAt > 42) {
+            header.classList.add('header--hidden');
+          } else if (scrollDelta < -2) {
+            header.classList.remove('header--hidden');
+          }
+        } else {
+          solidEnteredAt = null;
+          header.classList.remove('header--hidden');
+        }
+
+        lastScrollY = currentScrollY;
       }
     }
 
-    updateHeroState();
-    window.addEventListener('scroll', function(){
-      window.requestAnimationFrame(updateHeroState);
-    }, {passive:true});
-    window.addEventListener('resize', function(){
-      heroHeight = hero.offsetHeight;
-      updateHeroState();
+    function requestUpdate() {
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(update);
+    }
+
+    measure();
+    update();
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', function() {
+      measure();
+      requestUpdate();
     });
   })();
 
