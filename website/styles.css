@@ -24,13 +24,23 @@ header.header--hidden {
     box-shadow: none;
 }
 
+header.header--pre-exit .site-logo {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+
+header.header--returning-top {
+    background-color: transparent;
+    box-shadow: none;
+}
+
 .site-logo {
     position: relative;
     display: inline-block;
     line-height: 0;
     max-width: 260px;
     overflow: hidden;
-    transition: opacity 180ms ease, max-width 180ms ease, transform 180ms ease;
+    transition: opacity 160ms ease, max-width 160ms ease, transform 160ms ease;
 }
 
 .site-logo .logo {
@@ -71,6 +81,17 @@ header.header--solid .site-logo {
     pointer-events: none;
 }
 
+header.header--returning-top .site-logo {
+    position: relative;
+    left: auto;
+    top: auto;
+    opacity: 1;
+    max-width: 260px;
+    height: auto;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
 .site-brand-link {
     max-width: 0;
     opacity: 0;
@@ -84,7 +105,7 @@ header.header--solid .site-logo {
     line-height: 1;
     transform: translateY(4px);
     pointer-events: none;
-    transition: opacity 180ms ease, max-width 180ms ease, transform 180ms ease;
+    transition: opacity 160ms ease, max-width 160ms ease, transform 160ms ease;
 }
 
 header.header--solid .site-brand-link {
@@ -94,8 +115,15 @@ header.header--solid .site-brand-link {
     pointer-events: auto;
 }
 
+header.header--returning-top .site-brand-link {
+    max-width: 0;
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+}
+
 header.header--solid nav {
-    gap: 20px;
+    gap: 26px;
     transform: translateY(-1px);
 }
 
@@ -167,7 +195,7 @@ main {
 nav {
     position: relative;
     display: flex;
-    gap: 24px;
+    gap: 30px;
     align-items: flex-start;
 }
 
@@ -183,6 +211,18 @@ nav {
 
 header.header--on-image .nav-link {
     color: #fff;
+}
+
+header.header--returning-top .nav-link {
+    color: #fff;
+}
+
+header.header--returning-top .site-logo .logo--white {
+    opacity: 1;
+}
+
+header.header--returning-top .site-logo .logo--color {
+    opacity: 0;
 }
 
 .nav-link:hover,
@@ -303,7 +343,7 @@ h5 {
     bottom: 0;
     height: var(--hero-media-height, 15vh);
     overflow: hidden;
-    border-radius: 8px;
+    border-radius: 8px 8px 0 0;
     background: #111;
     z-index: 2;
     will-change: left, right, height;
@@ -397,8 +437,12 @@ h5 {
 
 .section {
     background: transparent;
-    padding: 24px 0 64px;
+    padding: 24px 0 144px;
     border-top: 1px solid #000;
+}
+
+.section--about {
+    border-top: 0;
 }
 
 .section__content {

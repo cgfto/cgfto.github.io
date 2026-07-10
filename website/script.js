@@ -182,23 +182,38 @@ document.addEventListener('DOMContentLoaded', function(){
         var currentScrollY = window.scrollY;
         var scrollDelta = currentScrollY - lastScrollY;
         var solidThreshold = 12;
+        var earlyHideThreshold = headerRect.bottom + 56;
         var pastHero = heroRect.bottom <= solidThreshold;
+        var nearingHeroExit = mediaRect.bottom <= earlyHideThreshold;
+        var returningTop = scrollDelta < -2 && heroRect.bottom <= headerRect.bottom + 120;
 
         header.classList.toggle('header--on-image', overlap);
         header.classList.toggle('header--solid', pastHero);
+        header.classList.toggle('header--pre-exit', nearingHeroExit && !pastHero);
+        header.classList.toggle('header--returning-top', returningTop);
 
         if (pastHero) {
           if (solidEnteredAt === null) {
             solidEnteredAt = currentScrollY;
           }
 
-          if (scrollDelta > 2 && currentScrollY - solidEnteredAt > 42) {
+          if (scrollDelta > 2 && currentScrollY - solidEnteredAt > 18) {
+            header.classList.add('header--hidden');
+          } else if (scrollDelta < -2) {
+            header.classList.remove('header--hidden');
+          }
+        } else if (nearingHeroExit) {
+          if (scrollDelta > 2) {
             header.classList.add('header--hidden');
           } else if (scrollDelta < -2) {
             header.classList.remove('header--hidden');
           }
         } else {
           solidEnteredAt = null;
+          header.classList.remove('header--hidden');
+        }
+
+        if (returningTop) {
           header.classList.remove('header--hidden');
         }
 
