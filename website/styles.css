@@ -110,9 +110,12 @@ h5 {
 .hero__bg {
     width: 100%;
     height: 100%;
+    /* use relative path so local previews work: expect assets/hero.png inside the website folder */
     background-image: url('/assets/hero.png');
+    background-repeat: no-repeat;
     background-size: cover;
     background-position: center center;
+    background-color: #222; /* fallback if image missing */
     display: flex;
     align-items: center
 }
