@@ -43,10 +43,21 @@
 
 			<main id="main" class="container" role="main">
 				<section class="hero" role="region" aria-label="Hero">
-					<div class="hero__bg">
-						<div class="hero__text">
-							<h1 class="h1">A community for graduate students and young professionals to embody the light of Christ in today’s cultural context.</h1>
-						</div>
+					<!-- Black text layer: fixed at top during scroll -->
+					<div class="hero__text hero__text--black">
+						<h1 class="h1">A community for graduate students and young professionals to embody the light of Christ in today's cultural context.</h1>
+					</div>
+					
+					<!-- Carousel container: 5 hero images that scroll into view -->
+					<div class="hero__carousel">
+					<div class="hero__image" style="background-image: url('/assets/hero.png')"></div>
+					<div class="hero__image" style="background-image: url('/assets/hero.png')"></div>
+					<div class="hero__image" style="background-image: url('/assets/hero.png')"></div>
+					<div class="hero__image" style="background-image: url('/assets/hero.png')"></div>
+					<div class="hero__image" style="background-image: url('/assets/hero.png')"></div>
+					<!-- White text layer: revealed as image scrolls past -->
+					<div class="hero__text hero__text--white">
+						<h1 class="h1">A community for graduate students and young professionals to embody the light of Christ in today's cultural context.</h1>
 					</div>
 				</section>
 <section class="section" aria-label="About CGF">
@@ -212,6 +223,35 @@
 							</tr>
 						</tbody>
 					</table>
+				</div>
+			</section>
+			<section class="section" aria-label="Locations">
+				<div class="section__content">
+					<h2 class="section__title">Locations</h2>
+				</div>
+				<div class="locations-grid-wrapper">
+					<div class="locations-grid">
+						<div class="location-card">
+							<div class="location-image-carousel">
+								<img src="/assets/location1-1.png" alt="Grace Toronto Church" class="carousel-image active">
+								<img src="/assets/location1-2.png" alt="Grace Toronto Church" class="carousel-image">
+							</div>
+							<h3 class="location-title">Grace Toronto Church</h3>
+							<p class="location-address">383 Jarvis St. Toronto ON</p>
+							<p class="location-address">2nd Floor</p>
+							<a href="https://maps.google.com/?q=383+Jarvis+St+Toronto+ON" target="_blank" rel="noopener noreferrer" class="cta-button">Directions</a>
+						</div>
+						<div class="location-card">
+							<div class="location-image-carousel">
+								<img src="/assets/location2-1.png" alt="University of Toronto / Wycliffe" class="carousel-image active">
+								<img src="/assets/location2-2.png" alt="University of Toronto / Wycliffe" class="carousel-image">
+							</div>
+							<h3 class="location-title">University of Toronto / Wycliffe</h3>
+							<p class="location-address">5 Hoskin Ave. Toronto ON</p>
+							<p class="location-address">1st Floor</p>
+							<a href="https://maps.google.com/?q=5+Hoskin+Ave+Toronto+ON" target="_blank" rel="noopener noreferrer" class="cta-button">Directions</a>
+						</div>
+					</div>
 				</div>
 			</section>
 			<footer>
