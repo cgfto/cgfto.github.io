@@ -118,7 +118,9 @@ document.addEventListener('DOMContentLoaded', function(){
     var heroScrollLength = 0;
     var scheduled = false;
     var lastScrollY = window.scrollY;
-    var solidEnteredAt = null;
+    var switchPassed = false;
+    var navHidden = false;
+    var scrollIntent = 0;
 
     function clamp(value, min, max) {
       return Math.max(min, Math.min(max, value));
@@ -133,18 +135,25 @@ document.addEventListener('DOMContentLoaded', function(){
       scheduled = false;
 
       var progress = clamp(window.scrollY / heroScrollLength, 0, 1);
-      var gutterProgress = clamp(progress / 0.28, 0, 1);
       var revealProgress = clamp(progress / 0.34, 0, 1);
+      var mediaRect = heroMedia.getBoundingClientRect();
+      var outroStartPx = 400;
+      var outroProgress = clamp((outroStartPx - mediaRect.bottom) / outroStartPx, 0, 1);
       var mediaHeight = Math.round(window.innerHeight * (0.15 + (0.85 * revealProgress)));
       var textCutoff = Math.max(0, window.innerHeight - mediaHeight);
       var sequenceStart = 0.36;
-      var sequenceEnd = 0.74;
+      var sequenceEnd = 0.86;
       var transitionShare = 0.18;
       var transitionCount = slides.length - 1;
+      var sideGap = Math.round(24 * (outroProgress > 0 ? outroProgress : (1 - revealProgress)));
+      var topRadius = Math.round(8 * (outroProgress > 0 ? outroProgress : (1 - revealProgress)));
+      var bottomRadius = Math.round(8 * outroProgress);
 
-      hero.style.setProperty('--hero-side-gap', Math.round(24 * (1 - gutterProgress)) + 'px');
+      hero.style.setProperty('--hero-side-gap', sideGap + 'px');
       hero.style.setProperty('--hero-media-height', mediaHeight + 'px');
       hero.style.setProperty('--hero-text-cutoff', textCutoff + 'px');
+      hero.style.setProperty('--hero-radius-top', topRadius + 'px');
+      hero.style.setProperty('--hero-radius-bottom', bottomRadius + 'px');
       blackCopy.style.opacity = '1';
       whiteCopy.style.opacity = '1';
 
@@ -175,47 +184,38 @@ document.addEventListener('DOMContentLoaded', function(){
       }
 
       if (header && heroMedia) {
-        var headerRect = header.getBoundingClientRect();
-        var mediaRect = heroMedia.getBoundingClientRect();
-        var heroRect = hero.getBoundingClientRect();
-        var overlap = mediaRect.top < headerRect.bottom && mediaRect.bottom > headerRect.top;
+        var overlapBandBottom = 96;
+        var overlap = mediaRect.top < overlapBandBottom && mediaRect.bottom > 0;
         var currentScrollY = window.scrollY;
         var scrollDelta = currentScrollY - lastScrollY;
-        var solidThreshold = 12;
-        var earlyHideThreshold = headerRect.bottom + 56;
-        var pastHero = heroRect.bottom <= solidThreshold;
-        var nearingHeroExit = mediaRect.bottom <= earlyHideThreshold;
-        var returningTop = scrollDelta < -2 && heroRect.bottom <= headerRect.bottom + 120;
+        var enterThreshold = 40;
+        var exitThreshold = 164;
+        var atSwitch = switchPassed ? mediaRect.bottom <= exitThreshold : mediaRect.bottom <= enterThreshold;
 
-        header.classList.toggle('header--on-image', overlap);
-        header.classList.toggle('header--solid', pastHero);
-        header.classList.toggle('header--pre-exit', nearingHeroExit && !pastHero);
-        header.classList.toggle('header--returning-top', returningTop);
+        switchPassed = atSwitch;
 
-        if (pastHero) {
-          if (solidEnteredAt === null) {
-            solidEnteredAt = currentScrollY;
-          }
+        header.classList.toggle('header--solid', switchPassed);
+        header.classList.toggle('header--on-image', overlap && !switchPassed);
+        header.classList.remove('header--returning-top');
 
-          if (scrollDelta > 2 && currentScrollY - solidEnteredAt > 18) {
-            header.classList.add('header--hidden');
-          } else if (scrollDelta < -2) {
-            header.classList.remove('header--hidden');
-          }
-        } else if (nearingHeroExit) {
-          if (scrollDelta > 2) {
-            header.classList.add('header--hidden');
-          } else if (scrollDelta < -2) {
-            header.classList.remove('header--hidden');
+        if (switchPassed && !overlap) {
+          // Hide immediately on any scroll down
+          if (scrollDelta > 0) {
+            navHidden = true;
+          } else if (scrollDelta < 0) {
+            scrollIntent = Math.min(0, scrollIntent) + scrollDelta;
+            if (scrollIntent < -8) {
+              navHidden = false;
+              scrollIntent = 0;
+            }
           }
         } else {
-          solidEnteredAt = null;
-          header.classList.remove('header--hidden');
+          navHidden = false;
+          scrollIntent = 0;
         }
 
-        if (returningTop) {
-          header.classList.remove('header--hidden');
-        }
+        header.classList.toggle('header--hidden', navHidden);
+        header.classList.remove('header--pre-exit');
 
         lastScrollY = currentScrollY;
       }

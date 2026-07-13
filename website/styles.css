@@ -252,7 +252,6 @@ h5 {
     margin-left: -24px;
     margin-right: -24px;
     background: #EBEBEB;
-    overflow: clip;
 }
 
 .hero__sticky {
@@ -343,7 +342,7 @@ h5 {
     bottom: 0;
     height: var(--hero-media-height, 15vh);
     overflow: hidden;
-    border-radius: 8px 8px 0 0;
+    border-radius: var(--hero-radius-top, 8px) var(--hero-radius-top, 8px) var(--hero-radius-bottom, 0px) var(--hero-radius-bottom, 0px);
     background: #111;
     z-index: 2;
     will-change: left, right, height;
