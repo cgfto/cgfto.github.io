@@ -113,6 +113,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var slides = Array.prototype.slice.call(hero.querySelectorAll('.hero__slide'));
     var blackCopy = hero.querySelector('.hero__copy--black');
     var whiteCopy = hero.querySelector('.hero__copy--white');
+    var whiteGhostActions = whiteCopy ? whiteCopy.querySelector('.hero__actions') : null;
     if (!slides.length || !blackCopy || !whiteCopy) return;
 
     var heroScrollLength = 0;
@@ -137,8 +138,9 @@ document.addEventListener('DOMContentLoaded', function(){
       var progress = clamp(window.scrollY / heroScrollLength, 0, 1);
       var revealProgress = clamp(progress / 0.34, 0, 1);
       var mediaRect = heroMedia.getBoundingClientRect();
-      var outroStartPx = 400;
-      var outroProgress = clamp((outroStartPx - mediaRect.bottom) / outroStartPx, 0, 1);
+      var outroStartPx = 560;
+      var outroEndPx = 220;
+      var outroProgress = clamp((outroStartPx - mediaRect.bottom) / (outroStartPx - outroEndPx), 0, 1);
       var mediaHeight = Math.round(window.innerHeight * (0.15 + (0.85 * revealProgress)));
       var textCutoff = Math.max(0, window.innerHeight - mediaHeight);
       var sequenceStart = 0.36;
@@ -148,12 +150,23 @@ document.addEventListener('DOMContentLoaded', function(){
       var sideGap = Math.round(24 * (outroProgress > 0 ? outroProgress : (1 - revealProgress)));
       var topRadius = Math.round(8 * (outroProgress > 0 ? outroProgress : (1 - revealProgress)));
       var bottomRadius = Math.round(8 * outroProgress);
+      var slideParallaxY = (0.5 - progress) * 56;
+      var centerShiftProgress = clamp((revealProgress - 0.58) / 0.42, 0, 1);
+      var whiteCenterShift = 0;
+
+      if (whiteGhostActions) {
+        var ghostActionsStyle = window.getComputedStyle(whiteGhostActions);
+        var ghostActionsMarginTop = parseFloat(ghostActionsStyle.marginTop) || 0;
+        whiteCenterShift = ((whiteGhostActions.offsetHeight + ghostActionsMarginTop) / 2) * centerShiftProgress;
+      }
 
       hero.style.setProperty('--hero-side-gap', sideGap + 'px');
       hero.style.setProperty('--hero-media-height', mediaHeight + 'px');
       hero.style.setProperty('--hero-text-cutoff', textCutoff + 'px');
       hero.style.setProperty('--hero-radius-top', topRadius + 'px');
       hero.style.setProperty('--hero-radius-bottom', bottomRadius + 'px');
+      hero.style.setProperty('--hero-white-center-shift', whiteCenterShift.toFixed(2) + 'px');
+      hero.style.setProperty('--hero-slide-parallax', slideParallaxY.toFixed(2) + 'px');
       blackCopy.style.opacity = '1';
       whiteCopy.style.opacity = '1';
 
@@ -188,9 +201,9 @@ document.addEventListener('DOMContentLoaded', function(){
         var overlap = mediaRect.top < overlapBandBottom && mediaRect.bottom > 0;
         var currentScrollY = window.scrollY;
         var scrollDelta = currentScrollY - lastScrollY;
-        var enterThreshold = 40;
-        var exitThreshold = 164;
-        var atSwitch = switchPassed ? mediaRect.bottom <= exitThreshold : mediaRect.bottom <= enterThreshold;
+        var enterSwitchProgress = 0.91;
+        var exitSwitchProgress = 0.86;
+        var atSwitch = switchPassed ? progress >= exitSwitchProgress : progress >= enterSwitchProgress;
 
         switchPassed = atSwitch;
 
@@ -198,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function(){
         header.classList.toggle('header--on-image', overlap && !switchPassed);
         header.classList.remove('header--returning-top');
 
-        if (switchPassed && !overlap) {
+        if (switchPassed) {
           // Hide immediately on any scroll down
           if (scrollDelta > 0) {
             navHidden = true;
@@ -247,6 +260,131 @@ document.addEventListener('DOMContentLoaded', function(){
         currentIndex = (currentIndex + 1) % images.length;
         images[currentIndex].classList.add('active');
       }, 6000);
+    });
+  })();
+
+  // Ministries carousel: auto-scroll with hover/drag controls
+  (function(){
+    var carousel = document.querySelector('[data-carousel="ministries"]');
+    if (!carousel) return;
+
+    var normalSpeed = 1.5; // pixels per frame at normal pace
+    var hoverSpeed = 0.4; // pixels per frame when hovering (75% slower)
+    var currentSpeed = normalSpeed;
+    var isManualDragging = false;
+    var dragStartX = 0;
+    var dragStartScrollLeft = 0;
+    var halfScrollWidth = 0;
+    var hasCloned = false;
+
+    // Prevent default drag behavior on images
+    carousel.addEventListener('dragstart', function(e){
+      e.preventDefault();
+    }, false);
+
+    function setupCarousel(){
+      if (hasCloned) return;
+      
+      var cards = Array.prototype.slice.call(carousel.querySelectorAll('.ministry-carousel-card:not(.cloned)'));
+      console.log('Setting up carousel with', cards.length, 'cards');
+      if (cards.length === 0) return;
+      
+      // Get initial scroll width before cloning
+      halfScrollWidth = carousel.scrollWidth;
+      console.log('Half scroll width:', halfScrollWidth);
+      
+      // Clone all cards
+      cards.forEach(function(card){
+        var clone = card.cloneNode(true);
+        clone.classList.add('cloned');
+        carousel.appendChild(clone);
+      });
+      
+      console.log('Total scroll width after cloning:', carousel.scrollWidth);
+      hasCloned = true;
+    }
+
+    // Initialize carousel cloning immediately on page load
+    window.addEventListener('load', function(){
+      setupCarousel();
+    }, false);
+
+    // Also try immediately in case load already fired
+    if (document.readyState === 'complete') {
+      setupCarousel();
+    }
+
+    // Main auto-scroll loop
+    function autoScroll(){
+      if (!isManualDragging && halfScrollWidth > 0) {
+        carousel.scrollLeft += currentSpeed;
+        
+        // Loop back when reaching the cloned section
+        if (carousel.scrollLeft >= halfScrollWidth) {
+          carousel.scrollLeft = 0;
+        }
+      }
+      requestAnimationFrame(autoScroll);
+    }
+
+    // Start scrolling
+    autoScroll();
+
+    // Hover to slow down
+    carousel.addEventListener('mouseenter', function(){
+      currentSpeed = hoverSpeed;
+    }, false);
+
+    carousel.addEventListener('mouseleave', function(){
+      currentSpeed = normalSpeed;
+      isManualDragging = false;
+    }, false);
+
+    // Manual drag/click scrolling
+    carousel.addEventListener('mousedown', function(e){
+      e.preventDefault();
+      isManualDragging = true;
+      dragStartX = e.pageX;
+      dragStartScrollLeft = carousel.scrollLeft;
+    }, false);
+
+    document.addEventListener('mousemove', function(e){
+      if (!isManualDragging) return;
+      var dragDistance = e.pageX - dragStartX;
+      carousel.scrollLeft = dragStartScrollLeft - dragDistance;
+    }, false);
+
+    document.addEventListener('mouseup', function(){
+      isManualDragging = false;
+    }, false);
+  })();
+
+  // FAQ Accordion functionality
+  (function(){
+    var faqQuestions = document.querySelectorAll('.faq-question');
+    
+    faqQuestions.forEach(function(question){
+      question.addEventListener('click', function(){
+        var answerId = this.getAttribute('aria-controls');
+        var answer = document.getElementById(answerId);
+        var isExpanded = this.getAttribute('aria-expanded') === 'true';
+        
+        // Close all other answers
+        faqQuestions.forEach(function(q){
+          if(q !== question) {
+            q.setAttribute('aria-expanded', 'false');
+            var otherId = q.getAttribute('aria-controls');
+            var otherAnswer = document.getElementById(otherId);
+            if(otherAnswer) {
+              otherAnswer.hidden = true;
+            }
+          }
+        });
+        
+        // Toggle current answer
+        this.setAttribute('aria-expanded', !isExpanded);
+        answer.hidden = isExpanded;
+      });
     });
   })();
 
